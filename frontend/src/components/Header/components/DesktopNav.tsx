@@ -1,12 +1,16 @@
+"use client";
+
 import React from "react";
 import { cx } from "class-variance-authority";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { getInitial } from "@/helpers/getInitial";
+import { useRouter } from "next/navigation";
 
 const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
   const initial = getInitial(user?.name);
 
   const classNames = cx("items-center gap-4", className);
@@ -15,7 +19,7 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
     <div className={classNames}>
       {!isAuthenticated ? (
         <Button
-          onClick={() => login()}
+          onClick={() => router.push("/login")}
           className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 cursor-pointer"
         >
           Login
