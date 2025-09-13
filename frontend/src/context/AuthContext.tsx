@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useState } from "react";
 import { login as loginSvc, logout as logoutSvc } from "@/services/auth";
-import { User } from "@/types";
+import { User } from "@/types/types";
 
 type AuthContextValue = {
   user: User | null;

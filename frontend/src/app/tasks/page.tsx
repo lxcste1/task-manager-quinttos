@@ -9,7 +9,7 @@ import {
   toggleDone,
   getStats,
 } from "@/services/tasks";
-import { Task } from "@/types";
+import { Task } from "@/types/types";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);

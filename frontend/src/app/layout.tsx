@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import { AuthProvider } from "@/context/AuthContext";
 import Header from "@/components/Header/Header";
 import "./globals.css";
+import Footer from "@/components/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "TaskManager - Gestión de Tareas Personales",
@@ -25,7 +26,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
-          <main className="max-w-7xl mx-auto">{children}</main>
+          <main>{children}</main>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { login, logout } from "@/services/auth";
-import {
-  getTasks,
-  createTask,
-  deleteTask,
-  getStats,
-} from "@/services/tasks";
+import { getTasks, createTask, deleteTask, getStats } from "@/services/tasks";
+import HeroSection from "@/components/Home/HeroSection";
+import FeaturesSection from "@/components/Home/FeaturesSection";
+import StatsSection from "@/components/Home/StatsSection";
+import CTASection from "@/components/Home/CTASection";
 
 export default function HomePage() {
   const [user, setUser] = useState<any>(null);
@@ -40,50 +39,11 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
-      {!user ? (
-        <>
-          <h1>Login</h1>
-          <button onClick={handleLogin}>Login con admin@example.com</button>
-        </>
-      ) : (
-        <>
-          <h1>Hola {user.name}!</h1>
-          <button
-            onClick={() => {
-              logout();
-              setUser(null);
-            }}
-          >
-            Logout
-          </button>
-
-          <h2>Stats</h2>
-          {stats && (
-            <p>
-              Total: {stats.total} | Completadas: {stats.completed} |
-              Pendientes: {stats.pending}
-            </p>
-          )}
-
-          <h2>Tasks</h2>
-          <ul>
-            {tasks.map((t) => (
-              <li key={t.id}>
-                {t.title} ({t.completed ? "✔" : "❌"})
-                <button onClick={() => handleDeleteTask(t.id)}>Eliminar</button>
-              </li>
-            ))}
-          </ul>
-
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nueva tarea"
-          />
-          <button onClick={handleCreateTask}>Agregar</button>
-        </>
-      )}
+    <div className="min-h-screen">
+      <HeroSection />
+      <FeaturesSection />
+      <StatsSection />
+      <CTASection />
     </div>
   );
 }

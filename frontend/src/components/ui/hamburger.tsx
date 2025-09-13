@@ -162,7 +162,7 @@ function Trigger({ className, ...props }: TriggerProps) {
         toggle();
       }}
       className={[
-        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-300/60 bg-white/70 text-neutral-900 shadow-sm backdrop-blur transition active:scale-95 dark:border-neutral-700 dark:bg-neutral-900/70 dark:text-neutral-100",
+        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-300/60 bg-white/70 text-neutral-900 shadow-sm backdrop-blur transition active:scale-95",
         className ?? "",
       ].join(" ")}
       {...props}
@@ -203,7 +203,7 @@ function Panel({
       aria-modal="true"
       aria-labelledby="hamburger-title"
       className={[
-        "pointer-events-auto fixed inset-y-0 z-[2] flex w-[85svw] bg-white shadow-2xl transition-transform duration-200 dark:bg-neutral-900",
+        "pointer-events-auto fixed inset-y-0 z-[2] flex w-[85svw] bg-white shadow-2xl transition-transform duration-200 ",
         side === "left" ? "left-0" : "right-0",
         className,
         open
@@ -220,7 +220,7 @@ function Panel({
           <span id="hamburger-title" className="text-lg font-semibold">
             {title}
           </span>
-          <Close className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-300/60 text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800" />
+          <Close className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-300/60 text-neutral-600 hover:bg-neutral-100" />
         </div>
         <ul className="flex flex-1 flex-col">{children}</ul>
       </nav>
@@ -245,7 +245,7 @@ function Item(props: ItemProps) {
   const { hide, firstLinkRef, closeOnNavigate } = useHamburgerCtx();
 
   const cls =
-    "block rounded-xl px-3 py-2 text-base text-neutral-800 ring-offset-2 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:text-neutral-100 dark:hover:bg-neutral-800";
+    "block rounded-xl px-3 py-2 text-base text-neutral-800 ring-offset-2 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400";
   const { href, onClick, children, className = "", index, title } = props;
   if ("href" in props && typeof props.href === "string") {
     return (
