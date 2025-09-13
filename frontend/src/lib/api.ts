@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Use /api for both development and production to leverage Next.js rewrites
 const baseURL = "/api";
 
 export const api = axios.create({
@@ -17,7 +16,6 @@ export function setAuthToken(token?: string) {
   else delete api.defaults.headers.common.Authorization;
 }
 
-// Restore token from localStorage on app initialization
 export function restoreAuthToken(): boolean {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
@@ -29,7 +27,6 @@ export function restoreAuthToken(): boolean {
   return false;
 }
 
-// Initialize token on module load
 restoreAuthToken();
 
 console.log("API base:", api.defaults.baseURL);
