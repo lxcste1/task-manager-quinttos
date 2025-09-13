@@ -1,6 +1,6 @@
 import { CheckCircle, Clock, Target } from "lucide-react";
 
-export const statsCardData = [
+export const statsCardDataMock = [
   {
     title: 24,
     description: "Total de tareas",

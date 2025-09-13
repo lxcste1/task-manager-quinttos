@@ -8,7 +8,13 @@ import {
 } from "../ui/card";
 import { BarChart3 } from "lucide-react";
 
-const ProgressCard = () => {
+type ProgressCardProps = {
+  percent: number;
+  completed: number;
+  pending: number;
+};
+
+const ProgressCard = ({ percent, completed, pending }: ProgressCardProps) => {
   return (
     <section>
       <Card>
@@ -26,23 +32,23 @@ const ProgressCard = () => {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Tareas Completadas</span>
-                <span className="text-primary font-medium">75%</span>
+                <span className="text-primary font-medium">{percent}%</span>
               </div>
               <div className="w-full bg-white rounded-full h-3">
                 <div
                   className="bg-primary h-3 rounded-full"
-                  style={{ width: "75%" }}
+                  style={{ width: `${percent}%` }}
                 ></div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-primary rounded-full"></div>
-                <span className="text-sm">Completadas (18)</span>
+                <span className="text-sm">Completadas ({completed})</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-white rounded-full"></div>
-                <span className="text-sm">Pendientes (6)</span>
+                <span className="text-sm">Pendientes ({pending})</span>
               </div>
             </div>
           </div>
