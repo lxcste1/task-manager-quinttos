@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Task } from "@/types";
+import { Task } from "@/types/types";
 
 export async function getTasks(): Promise<Task[]> {
   const { data } = await api.get("/tasks");

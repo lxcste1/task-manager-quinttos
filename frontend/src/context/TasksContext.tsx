@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import type { Task, Stats } from "@/types";
+import type { Task, Stats } from "@/types/types";
 import { getTasks, createTask, deleteTask, getStats } from "@/services/tasks";
 import { useAuth } from "./AuthContext";
 

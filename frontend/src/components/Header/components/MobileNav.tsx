@@ -23,10 +23,10 @@ const MobileNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
           ) : (
             <Hamburger.Item onClick={login}>Iniciar sesión</Hamburger.Item>
           )}
-          <footer className="mt-auto pt-2 text-xs text-neutral-500">
+          <div className="mt-auto pt-2 text-xs text-neutral-500">
             © {new Date().getFullYear()} Quinttos Challenge | Developed by
             lxcste
-          </footer>
+          </div>
         </Hamburger.Panel>
       </Hamburger>
     </div>
