@@ -12,21 +12,18 @@ export const api = axios.create({
 });
 
 export function setAuthToken(token?: string) {
-  if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`;
-  else delete api.defaults.headers.common.Authorization;
-}
-
-export function restoreAuthToken(): boolean {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setAuthToken(token);
-      return true;
-    }
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common.Authorization;
   }
-  return false;
 }
 
-restoreAuthToken();
+export function restoreAuthToken(): string | null {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  setAuthToken(token || undefined);
+  return token;
+}
 
 console.log("API base:", api.defaults.baseURL);

@@ -1,211 +1,106 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  getTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-  toggleDone,
-  getStats,
-} from "@/services/tasks";
-import { Task } from "@/types/types";
+import React, { useState } from "react";
+import { useTasks } from "@/context/TasksContext";
+import TaskForm from "@/components/Tasks/TaskForm";
+import TaskItem from "@/components/Tasks/TaskItem";
+import SkeletonItem from "@/components/Tasks/SkeletonItem";
+import { CheckedState, Task } from "@/types/types";
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [stats, setStats] = useState<{
-    total: number;
-    completed: number;
-    pending: number;
-  } | null>(null);
+  const { tasks, loading, addTask, updateTask, removeTask, toggleDone } =
+    useTasks();
 
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState<{
-    title: string;
-    description: string;
-    status: Task["status"];
-  }>({
-    title: "",
-    description: "",
-    status: "pending",
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanTitle = title.trim();
+    const cleanDesc = description.trim();
+    if (!cleanTitle) return;
 
-  const load = async () => {
-    const [t, s] = await Promise.all([getTasks(), getStats()]);
-    setTasks(t);
-    setStats(s);
+    if (editingTask) {
+      await updateTask(editingTask.id, {
+        title: cleanTitle,
+        description: cleanDesc || undefined,
+      });
+      setEditingTask(null);
+    } else {
+      await addTask({ title: cleanTitle, description: cleanDesc || undefined });
+    }
+
+    setTitle("");
+    setDescription("");
   };
 
-  useEffect(() => {
-    load();
-  }, []);
-
-  const startEdit = (task: Task) => {
-    setEditingId(task.id);
-    setForm({
-      title: task.title,
-      description: task.description ?? "",
-      status: task.status,
-    });
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setForm({ title: "", description: "", status: "pending" });
-  };
-
-  const saveEdit = async (id: number) => {
-    await updateTask(id, form);
-    cancelEdit();
-    await load();
-  };
-
-  const handleCreate = async () => {
-    if (!newTitle.trim()) return;
-    await createTask({
-      title: newTitle.trim(),
-      description: newDesc || undefined,
-      status: "pending",
-    });
-    setNewTitle("");
-    setNewDesc("");
-    await load();
+  const handleToggle = async (id: number, checked: CheckedState) => {
+    const done = checked === true;
+    await toggleDone(id, done);
   };
 
   const handleDelete = async (id: number) => {
-    await deleteTask(id);
-    await load();
+    await removeTask(id);
   };
 
+  const startEditing = (task: Task) => {
+    setEditingTask(task);
+    setTitle(task.title);
+    setDescription(task.description ?? "");
+  };
+
+  const cancelEditing = () => {
+    setEditingTask(null);
+    setTitle("");
+    setDescription("");
+  };
+  const TasksSkeleton = () => (
+    <div className="space-y-3" aria-hidden>
+      {[0, 1, 2].map((i) => (
+        <SkeletonItem key={i} />
+      ))}
+    </div>
+  );
+
   return (
-    <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Tasks</h1>
-
-      {stats && (
-        <div style={{ marginBottom: 16 }}>
-          <strong>Stats:</strong> Total {stats.total} · Completed{" "}
-          {stats.completed} · Pending {stats.pending}
+    <div className="min-h-screen bg-background" aria-busy={loading}>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Tareas</h1>
         </div>
-      )}
 
-      <section style={{ marginBottom: 24, display: "grid", gap: 8 }}>
-        <input
-          placeholder="Título…"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
+        <TaskForm
+          title={title}
+          description={description}
+          onTitleChange={setTitle}
+          onDescriptionChange={setDescription}
+          onSubmit={handleSubmit}
+          isEditing={!!editingTask}
+          onCancel={cancelEditing}
         />
-        <textarea
-          placeholder="Descripción (opcional)…"
-          value={newDesc}
-          onChange={(e) => setNewDesc(e.target.value)}
-        />
-        <button onClick={handleCreate}>Crear tarea</button>
-      </section>
 
-      <ul style={{ display: "grid", gap: 12 }}>
-        {tasks.map((t) => {
-          const isEditing = editingId === t.id;
-          return (
-            <li
-              key={t.id}
-              style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}
-            >
-              {!isEditing ? (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <label
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={t.status === "completed"}
-                        onChange={async (e) => {
-                          await toggleDone(t.id, e.target.checked);
-                          await load();
-                        }}
-                      />
-                      <span style={{ fontWeight: 600 }}>{t.title}</span>
-                    </label>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        background:
-                          t.status === "completed" ? "#e6ffed" : "#fff7e6",
-                        border: "1px solid #ddd",
-                        fontSize: 12,
-                      }}
-                    >
-                      {t.status}
-                    </span>
-                  </div>
-                  {t.description && (
-                    <p style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>
-                      {t.description}
-                    </p>
-                  )}
-
-                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                    <button onClick={() => startEdit(t)}>Editar</button>
-                    <button
-                      onClick={() => handleDelete(t.id)}
-                      style={{ color: "crimson" }}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ display: "grid", gap: 8 }}>
-                    <input
-                      value={form.title}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, title: e.target.value }))
-                      }
-                      placeholder="Título"
-                    />
-                    <textarea
-                      value={form.description}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, description: e.target.value }))
-                      }
-                      placeholder="Descripción"
-                      rows={3}
-                    />
-                    <select
-                      value={form.status}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          status: e.target.value as Task["status"],
-                        }))
-                      }
-                    >
-                      <option value="pending">pending</option>
-                      <option value="completed">completed</option>
-                    </select>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                    <button onClick={() => saveEdit(t.id)}>Guardar</button>
-                    <button onClick={cancelEdit}>Cancelar</button>
-                  </div>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </main>
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-4">
+            Vista de tareas
+          </h2>
+        </div>
+        {loading ? (
+          <TasksSkeleton />
+        ) : (
+          <div className="space-y-3">
+            {tasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onToggle={handleToggle}
+                onEdit={startEditing}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
