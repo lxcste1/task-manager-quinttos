@@ -1,5 +1,5 @@
 import React from "react";
-import { statsCardData } from "./data/statsData";
+import { statsCardDataMock } from "./data/statsDataMock";
 import StatsCard from "../common/StatsCard";
 import ProgressCard from "../common/ProgressCard";
 
@@ -16,7 +16,7 @@ const StatsSection = () => {
         </div>
 
         <div className={`grid md:grid-cols-3 gap-6 mb-8`}>
-          {statsCardData.map((stat, index) => (
+          {statsCardDataMock.map((stat, index) => (
             <StatsCard
               key={index}
               title={stat.title}
@@ -30,7 +30,7 @@ const StatsSection = () => {
             />
           ))}
         </div>
-        <ProgressCard />
+        <ProgressCard percent={50} completed={20} pending={30} />
       </div>
     </section>
   );

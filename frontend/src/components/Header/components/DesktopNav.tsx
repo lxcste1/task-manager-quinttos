@@ -1,15 +1,13 @@
-import { getInitial } from "@/app/helpers/getInitial";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import React from "react";
 import { cx } from "class-variance-authority";
 import { Plus } from "lucide-react";
-import React from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { getInitial } from "@/helpers/getInitial";
 
 const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
   const { user, isAuthenticated, login, logout } = useAuth();
   const initial = getInitial(user?.name);
-
-  console.log({ user });
 
   const classNames = cx("items-center gap-4", className);
 
