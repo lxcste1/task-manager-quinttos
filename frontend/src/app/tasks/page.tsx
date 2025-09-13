@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  Task,
   getTasks,
   createTask,
   updateTask,
@@ -10,6 +9,7 @@ import {
   toggleDone,
   getStats,
 } from "@/services/tasks";
+import { Task } from "@/types";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -19,11 +19,9 @@ export default function TasksPage() {
     pending: number;
   } | null>(null);
 
-  // form de creación
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
 
-  // edición inline
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<{
     title: string;
