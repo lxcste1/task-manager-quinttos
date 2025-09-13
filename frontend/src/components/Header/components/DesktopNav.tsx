@@ -9,6 +9,8 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
   const { user, isAuthenticated, login, logout } = useAuth();
   const initial = getInitial(user?.name);
 
+  console.log({ user });
+
   const classNames = cx("items-center gap-4", className);
 
   return (

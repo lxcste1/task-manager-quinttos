@@ -18,3 +18,5 @@ export type Stats = {
   completed: number;
   pending: number;
 };
+
+export type CheckedState = boolean | "indeterminate";

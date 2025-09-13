@@ -6,10 +6,17 @@ export async function login(email: string, password: string) {
   const { token, user } = data;
   setAuthToken(token);
   localStorage.setItem("token", token);
+  localStorage.setItem("user", JSON.stringify(user));
   return user;
 }
 
 export function logout() {
-  setAuthToken(undefined);
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  setAuthToken(undefined);
+}
+
+export async function getMe() {
+  const { data } = await api.get("/me");
+  return data;
 }

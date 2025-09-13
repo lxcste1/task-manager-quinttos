@@ -2,9 +2,11 @@ import { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { AuthProvider } from "@/context/AuthContext";
+import { TasksProvider } from "@/context/TasksContext";
 import Header from "@/components/Header/Header";
-import "./globals.css";
 import Footer from "@/components/Footer/Footer";
+
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "TaskManager - Gestión de Tareas Personales",
@@ -25,9 +27,11 @@ export default function RootLayout({
         cz-shortcut-listen="true"
       >
         <AuthProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <TasksProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </TasksProvider>
         </AuthProvider>
       </body>
     </html>

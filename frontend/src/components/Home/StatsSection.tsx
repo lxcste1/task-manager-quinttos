@@ -4,7 +4,6 @@ import StatsCard from "../common/StatsCard";
 import ProgressCard from "../common/ProgressCard";
 
 const StatsSection = () => {
-  const cols = statsCardData.length;
   return (
     <section className="py-16 px-4">
       <div className="max-w-5xl mx-auto">
@@ -16,7 +15,7 @@ const StatsSection = () => {
           </p>
         </div>
 
-        <div className={`grid md:grid-cols-${cols} gap-6 mb-8`}>
+        <div className={`grid md:grid-cols-3 gap-6 mb-8`}>
           {statsCardData.map((stat, index) => (
             <StatsCard
               key={index}
