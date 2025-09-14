@@ -1,6 +1,7 @@
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
 type TaskFormProps = {
@@ -30,27 +31,35 @@ const TaskForm = ({
         </h2>
       </div>
       <Card className="mb-8">
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <form onSubmit={onSubmit} className="space-y-4">
-            <div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="title">
+                Título<span className="text-red-500">*</span>
+              </Label>
               <Input
                 placeholder="Título..."
                 value={title}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   onTitleChange(e.target.value)
                 }
-                className="text-base"
+                className="text-base bg-white"
+                name="title"
+                id="title"
               />
             </div>
 
-            <div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="description">Descripción</Label>
               <Textarea
-                placeholder="Descripción (opcional)..."
+                placeholder="Descripción..."
                 value={description}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   onDescriptionChange(e.target.value)
                 }
-                className="min-h-[100px] text-base resize-none"
+                className="min-h-[100px] text-base resize-none bg-white"
+                name="description"
+                id="description"
               />
             </div>
 
