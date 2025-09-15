@@ -6,27 +6,10 @@ Aplicación web para **gestión de tareas** con **autenticación de administrado
 
 ## 🧰 Stack
 
-- **Backend:** PHP 8.x (recomendado **Laravel 10**)
+- **Backend:** PHP 8.x (**Laravel 10**)
 - **Base de datos:** MySQL 8.x
-- **Frontend (opcional):** Next.js 14 / React 18 (consumiendo API REST)
-- **Autenticación:** Token Bearer sencillo (JWT o Sanctum si usás Laravel)
-
----
-
-## 📦 Estructura del repo (sugerida)
-
-```
-.
-├─ backend/                   # Código PHP (Laravel recomendado o PHP puro)
-│  ├─ app/                    # Controladores, modelos, servicios (Laravel)
-│  ├─ routes/                 # Rutas API
-│  ├─ public/                 # Front (si servís vistas desde el backend) o index.php
-│  └─ ...
-├─ frontend/                  # (Opcional) Next.js/React
-├─ db/
-   └─ schema.sql              # Esquema y seeds de ejemplo
-
-```
+- **Frontend:** Next.js 14 / React 18 (consumiendo API REST)
+- **Autenticación:** Token Bearer
 
 ---
 
@@ -61,13 +44,6 @@ Desde terminal:
 
 ```bash
 mysql -u <USER> -p tasksmanager < db/schema.sql
-```
-
-**Seed opcional de admin** (si usás login en DB):
-
-```sql
-INSERT INTO admin_users (email, password_hash)
-VALUES ('admin@example.com', '<REEMPLAZAR_CON_BCRYPT>');
 ```
 
 ---
