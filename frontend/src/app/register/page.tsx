@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useRegister } from "@/hooks/useRegister";
 import {
   Card,
   CardContent,
@@ -11,40 +12,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail } from "lucide-react";
+import { Mail, User as UserIcon, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 
-export default function LoginPage() {
-  const { login, isAuthenticated, hydrated } = useAuth();
+export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { hydrated, isAuthenticated } = useAuth();
+  const { form, setField, submit, loading, error } = useRegister();
 
   useEffect(() => {
-    if (hydrated && isAuthenticated) {
-      router.replace("/");
-    }
+    if (hydrated && isAuthenticated) router.replace("/");
   }, [hydrated, isAuthenticated, router]);
 
   if (!hydrated) return null;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      await login(email, password);
-      router.replace("/");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Credenciales inválidas");
-    } finally {
-      setLoading(false);
-    }
+    await submit(() => router.replace("/"));
   }
 
   return (
@@ -52,18 +38,15 @@ export default function LoginPage() {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Iniciar Sesión
+            Crear Cuenta
           </h1>
-          <p className="text-muted-foreground">
-            Accede a tu cuenta para gestionar tus tareas
-          </p>
         </div>
 
         <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Bienvenido</CardTitle>
             <CardDescription className="text-center">
-              Ingresa tus credenciales para continuar
+              Completa tus datos para registrarte
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -75,6 +58,21 @@ export default function LoginPage() {
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="name">Nombre</Label>
+                <div className="relative">
+                  <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    placeholder="Tu nombre"
+                    value={form.name}
+                    onChange={(e) => setField("name", e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -82,8 +80,8 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={form.email}
+                    onChange={(e) => setField("email", e.target.value)}
                     className="pl-10"
                     required
                   />
@@ -96,42 +94,35 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    type={"password"}
-                    placeholder="Tu contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
+                    type="password"
+                    placeholder="Mínimo 8 caracteres"
+                    value={form.password}
+                    onChange={(e) => setField("password", e.target.value)}
+                    className="pl-10"
                     required
                   />
                 </div>
               </div>
+
               <Button
                 type="submit"
                 className="w-full cursor-pointer"
                 disabled={loading}
               >
-                {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+                {loading ? "Creando cuenta..." : "Registrarme"}
               </Button>
             </form>
-            <Link
-              href="/register"
-              className="flex justify-center text-sm underline cursor-pointer"
-            >
-              ¿No tenes una cuenta? Registrarme
-            </Link>
 
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border/50">
-              <h4 className="text-sm font-medium text-foreground mb-2">
-                Credenciales de demostración:
-              </h4>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>
-                  <strong>Email:</strong> admin@example.com
-                </p>
-                <p>
-                  <strong>Contraseña:</strong> password
-                </p>
-              </div>
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-muted-foreground">¿Ya tenés cuenta?</p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/login")}
+                className="cursor-pointer"
+              >
+                Iniciar sesión
+              </Button>
             </div>
           </CardContent>
         </Card>

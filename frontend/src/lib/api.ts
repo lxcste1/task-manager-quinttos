@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const baseURL = "/api";
+const resolvedBaseURL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
 
 export const api = axios.create({
-  baseURL,
+  baseURL: resolvedBaseURL,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -25,5 +25,18 @@ export function restoreAuthToken(): string | null {
   setAuthToken(token || undefined);
   return token;
 }
+
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers = config.headers ?? {};
+      if (!config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+  }
+  return config;
+});
 
 console.log("API base:", api.defaults.baseURL);
