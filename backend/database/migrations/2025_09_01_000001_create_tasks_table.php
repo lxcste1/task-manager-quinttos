@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('tasks', function (Blueprint $table) {
+        if (!Schema::hasTable('tasks')) {
+            Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
@@ -14,6 +15,7 @@ return new class extends Migration {
             $table->timestamps();
             $table->softDeletes();
         });
+        }
     }
     public function down(): void { Schema::dropIfExists('tasks'); }
 };
