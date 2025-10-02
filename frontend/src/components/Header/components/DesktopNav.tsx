@@ -1,12 +1,10 @@
-"use client";
-
 import React from "react";
+import { useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { getInitial } from "@/helpers/getInitial";
-import { useRouter } from "next/navigation";
 
 const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -18,12 +16,20 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
   return (
     <div className={classNames}>
       {!isAuthenticated ? (
-        <Button
-          onClick={() => router.push("/login")}
-          className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 cursor-pointer"
-        >
-          Login
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => router.push("/login")}
+            className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 cursor-pointer"
+          >
+            Login
+          </Button>
+          <Button
+            onClick={() => router.push("/register")}
+            className="bg-primary hover:bg-primary/90 px-3 py-2 cursor-pointer"
+          >
+            Registro
+          </Button>
+        </div>
       ) : (
         <div className="flex items-center gap-2">
           <span
@@ -36,7 +42,7 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
             onClick={logout}
             className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 cursor-pointer"
           >
-            Logout
+            Cerrar sesión
           </Button>
           <Button
             className="bg-primary hover:bg-primary/90 cursor-pointer"

@@ -13,34 +13,40 @@ import {
 import type { ReactNode } from "react";
 import type { AxiosError } from "axios";
 import { restoreAuthToken } from "@/lib/api";
-import { login as loginSvc, logout as logoutSvc, getMe } from "@/services/auth";
+import {
+  login as loginSvc,
+  logout as logoutSvc,
+  getMe,
+  register as registerSvc,
+} from "@/services/auth";
 
-type User = { id: number; name: string; email: string; password: string };
+type User = { id: number; name: string; email: string };
 
 type AuthContextValue = {
   user: User | null;
   isAuthenticated: boolean;
   hydrated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  children,
+}: React.PropsWithChildren<{ children: ReactNode }>) {
   const [user, setUser] = useState<User | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const didInit = useRef(false);
 
-  // --- bootstrap (restaura header, rehidrata user y valida /me) ---
   useEffect(() => {
-    if (didInit.current) return; // evita doble ejecución en StrictMode
+    if (didInit.current) return;
     didInit.current = true;
 
-    const token = restoreAuthToken(); // <-- pone Authorization si hay token
+    const token = restoreAuthToken();
 
-    // lee user cacheado (opcional, evita parpadeo)
     try {
       const cached = localStorage.getItem("user");
       if (cached) setUser(JSON.parse(cached) as User);
@@ -60,14 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         const status = (e as AxiosError)?.response?.status;
         if (status === 401 || status === 403) {
-          // token inválido/expirado → limpiar
           logoutSvc();
           setUser(null);
           try {
             localStorage.removeItem("user");
           } catch {}
-        } else {
-          // error transitorio (red/CORS/5xx) → conservamos token y user cacheado
         }
       } finally {
         setHydrated(true);
@@ -75,7 +78,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  // --- login sin defaults; persiste user para rehidratación rápida ---
   const login = useCallback(async (email: string, password: string) => {
     const u = (await loginSvc(email, password)) as unknown as User;
     setUser(u);
@@ -84,8 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, []);
 
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      const u = (await registerSvc(name, email, password)) as unknown as User;
+      setUser(u);
+      try {
+        localStorage.setItem("user", JSON.stringify(u));
+      } catch {}
+    },
+    []
+  );
+
   const logout = useCallback(() => {
-    logoutSvc(); // debería borrar token en storage y header
+    logoutSvc();
     setUser(null);
     try {
       localStorage.removeItem("user");
@@ -106,10 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       hydrated,
       login,
+      register,
       logout,
       refreshUser,
     }),
-    [user, hydrated, login, logout, refreshUser]
+    [user, hydrated, login, register, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
