@@ -8,6 +8,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
-    use HasFactory, SoftDeletes;
-    protected $fillable = ['title','description','status'];
+    use SoftDeletes;
+
+    protected $fillable = [
+        'title', 'description', 'status', 'due_date',
+        'created_by', 'assigned_to',
+    ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function scopeAssignedTo($query, int $userId)
+    {
+        return $query->where('assigned_to', $userId);
+    }
+
+    public function scopeAuthVisible($query, int $userId)
+    {
+        return $query->where('assigned_to', $userId);
+    }
 }

@@ -1,47 +1,113 @@
 <?php
 
+// app/Http/Controllers/TaskController.php
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Resources\TaskResource;
-use App\Http\Requests\TaskStoreRequest;
-use App\Http\Requests\TaskUpdateRequest;
+use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
+
+    public const TASK_ROUTE = '/tasks/{task}';
+
     public function index(Request $request)
     {
-        $q = Task::query();
+        $userId = $request->user()->id;
 
-        if ($search = $request->string('search')->toString()) {
-            $q->where('title', 'like', "%{$search}%");
+        $tasks = Task::query()
+            ->authVisible($userId)
+            ->latest()
+            ->paginate(15);
+
+        return response()->json($tasks);
+    }
+
+    public function home(Request $request)
+    {
+        return $this->index($request);
+    }
+
+    public function board(Request $request)
+    {
+        $userId = $request->user()->id;
+
+        $tasks = Task::query()
+            ->authVisible($userId)
+            ->orderByRaw("FIELD(status, 'todo','in_progress','done') asc")
+            ->orderBy('due_date')
+            ->paginate(15);
+
+        return response()->json($tasks);
+    }
+
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'title'       => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status'      => ['nullable', Rule::in(['todo','in_progress','done'])],
+            'due_date'    => ['nullable', 'date'],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $assignedTo = $data['assigned_to'] ?? $user->id;
+
+        $task = Task::create([
+            'title'       => $data['title'],
+            'description' => $data['description'] ?? null,
+            'status'      => $data['status'] ?? 'todo',
+            'due_date'    => $data['due_date'] ?? null,
+            'created_by'  => $user->id,
+            'assigned_to' => $assignedTo,
+        ]);
+
+        return response()->json($task, 201);
+    }
+
+    public function show(Task $task, Request $request)
+    {
+        $this->authorizeView($task, $request->user()->id);
+        return response()->json($task);
+    }
+
+    public function update(Task $task, Request $request)
+    {
+        $this->authorizeView($task, $request->user()->id);
+
+        $data = $request->validate([
+            'title'       => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'status'      => ['sometimes', Rule::in(['todo','in_progress','done'])],
+            'due_date'    => ['sometimes', 'nullable', 'date'],
+            'assigned_to' => ['sometimes', 'integer', 'exists:users,id'],
+        ]);
+
+        if (array_key_exists('assigned_to', $data)) {
+            $task->assigned_to = $data['assigned_to'];
         }
-        if ($status = $request->string('status')->toString()) {
-            $q->where('status', $status);
-        }
 
-        $tasks = $q->latest()->paginate(10);
-        return TaskResource::collection($tasks);
+        $task->fill(collect($data)->except('assigned_to')->toArray())->save();
+
+        return response()->json($task);
     }
 
-    public function store(TaskStoreRequest $request)
+    public function destroy(Task $task, Request $request)
     {
-        $task = Task::create($request->validated());
-        return new TaskResource($task);
-    }
-
-    public function show(Task $task) { return new TaskResource($task); }
-
-    public function update(TaskUpdateRequest $request, Task $task)
-    {
-        $task->update($request->validated());
-        return new TaskResource($task);
-    }
-
-    public function destroy(Task $task)
-    {
+        $this->authorizeView($task, $request->user()->id);
         $task->delete();
-        return response()->noContent();
+        return response()->json(['message' => 'Tarea eliminada']);
+    }
+
+    private function authorizeView(Task $task, int $userId): void
+    {
+        if ($task->assigned_to !== $userId && $task->created_by !== $userId) {
+            abort(403, 'No autorizado');
+        }
     }
 }
+

@@ -7,14 +7,18 @@ use App\Http\Controllers\StatsController;
 
 Route::get('/health', fn () => ['ok' => true]);
 
-// Login por token (público, sin sesión/CSRF)
-Route::post('/login-token', [AuthController::class, 'loginToken']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-// Protected routes with Sanctum authentication
 Route::middleware('auth:sanctum')->group(function () {
-    // Tasks CRUD
-    Route::apiResource('tasks', TaskController::class);
-    
-    // Stats endpoint
-    Route::get('/stats', StatsController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/tasks', [TaskController::class, 'index']);
+    Route::post('/tasks', [TaskController::class, 'store']);
+    Route::get(TaskController::TASK_ROUTE, [TaskController::class, 'show']);
+    Route::put(TaskController::TASK_ROUTE, [TaskController::class, 'update']);
+    Route::delete(TaskController::TASK_ROUTE, [TaskController::class, 'destroy']);
+
+    Route::get('/me/tasks/home', [TaskController::class, 'home']);
+    Route::get('/me/tasks/board', [TaskController::class, 'board']);
 });

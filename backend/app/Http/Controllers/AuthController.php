@@ -2,48 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    // Login que devuelve un token Bearer (sin sesión ni CSRF)
-    public function loginToken(Request $request)
+    public function register(Request $request)
     {
-        $credentials = $request->validate([
-            'email'    => ['required','email'],
-            'password' => ['required'],
+        $data = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', Password::min(8)],
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 422);
-        }
+        $user = User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
 
-        $user = $request->user();
-
-        // (opcional) solo admins
-        if (!$user->is_admin) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
-        // Crear token personal de Sanctum
         $token = $user->createToken('web')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
             'user'  => $user,
+            'token' => $token,
+        ], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $data = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $user = User::where('email', $data['email'])->first();
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            return response()->json(['message' => 'Credenciales inválidas'], 422);
+        }
+
+        $token = $user->createToken('web')->plainTextToken;
+
+        return response()->json([
+            'user'  => $user,
+            'token' => $token,
         ]);
     }
 
-    // Cerrar sesión invalidando el/los tokens
-    public function logoutToken(Request $request)
+    public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'ok']);
-    }
-
-    public function me(Request $request)
-    {
-        return response()->json(['user' => $request->user()]);
+        return response()->json(['message' => 'Sesión cerrada']);
     }
 }
+
