@@ -13,6 +13,11 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
 
   const classNames = cx("items-center gap-4", className);
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <div className={classNames}>
       {!isAuthenticated ? (
@@ -39,7 +44,7 @@ const DesktopNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
             {initial}
           </span>
           <Button
-            onClick={logout}
+            onClick={handleLogout}
             className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 cursor-pointer"
           >
             Cerrar sesión

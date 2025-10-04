@@ -1,3 +1,5 @@
+import React from "react";
+import { v4 as uuidv4 } from "uuid";
 import {
   Card,
   CardContent,
@@ -5,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
+
 import FeatureCardBullet from "./FeatureCardBullet";
 
 export type BulletProps = {
@@ -34,7 +36,7 @@ const FeatureCard = ({ title, description, icon, bullets }: FeatureCard) => {
         <div className="space-y-2">
           {bullets.map((bullet, index) => (
             <FeatureCardBullet
-              key={index}
+              key={uuidv4()}
               color={bullet.color}
               text={bullet.text}
             />

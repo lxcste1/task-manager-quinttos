@@ -1,8 +1,21 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const CTASection = () => {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const handleTasks = () => {
+    if (isAuthenticated) {
+      router.push("/tasks");
+    } else {
+      router.push("/login");
+    }
+  };
+
   return (
     <section className="py-16 px-4 bg-muted/30">
       <div className="max-w-5xl mx-auto text-center">
@@ -16,6 +29,7 @@ const CTASection = () => {
         <Button
           size="lg"
           className="bg-primary hover:bg-primary/90 cursor-pointer"
+          onClick={handleTasks}
         >
           <Plus className="w-5 h-5" />
           Crear mi primera tarea

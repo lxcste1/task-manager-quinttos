@@ -27,12 +27,12 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
 
   return (
     <Card className="border border-border">
-      <CardContent className="p-4">
+      <CardContent>
         <div className="flex items-start gap-3">
           <Checkbox
             checked={isCompleted}
             onCheckedChange={(checked) => onToggle(task.id, checked)}
-            className="mt-1"
+            className="border-sm mt-1"
           />
 
           <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -74,14 +74,14 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
                 </Badge>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 rounded-full bg-green-200 p-2">
                   <UserPlus className="h-3 w-3 text-green-700" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    Asignación
+                    Asignada a
                   </p>
                   {assignee ? (
                     <>

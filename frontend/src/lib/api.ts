@@ -1,4 +1,5 @@
 import axios from "axios";
+import Router from "next/router";
 
 const base = process.env.NEXT_PUBLIC_API_URL?.trim();
 const resolvedBaseURL = base ? `${base.replace(/\/$/, "")}/api` : "/api";
@@ -30,14 +31,31 @@ export function restoreAuthToken(): string | null {
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
+    config.headers = config.headers ?? {};
     if (token) {
-      config.headers = config.headers ?? {};
-      if (!config.headers.Authorization) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const status = err?.response?.status;
+    if (status === 401 && typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch {}
+      if (location.pathname !== "/login") {
+        Router.replace("/login");
+      }
+    }
+    return Promise.reject(new Error(err.message));
+  }
+);
 
 console.log("API base:", api.defaults.baseURL);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useTasks } from "@/context/TasksContext";
 import { getTaskStats } from "@/helpers/getTaskStats";
 import StatsCard from "@/components/common/StatsCard";
@@ -50,7 +51,7 @@ export default function StatsPage() {
         <div className={`grid md:grid-cols-3 gap-6 mb-8`}>
           {statsCardData.map((stat, index) => (
             <StatsCard
-              key={index}
+              key={uuidv4()}
               title={stat.title}
               description={stat.description}
               icon={stat.icon}

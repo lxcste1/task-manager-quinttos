@@ -1,4 +1,5 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
@@ -48,7 +49,7 @@ const TaskForm = ({
         </h2>
       </div>
       <Card className="mb-8">
-        <CardContent className="p-4">
+        <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="flex flex-col gap-1">
               <Label htmlFor="title">
@@ -89,7 +90,7 @@ const TaskForm = ({
                 }
                 disabled={loading || !onAssignedToChange}
               >
-                <SelectTrigger className="bg-white! w-full">
+                <SelectTrigger className="bg-white! w-full" id="assigned_to">
                   <SelectValue placeholder="Asignarme a mí automáticamente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -97,7 +98,7 @@ const TaskForm = ({
                     <SelectLabel>Usuarios</SelectLabel>
                     {users.map((u) => (
                       <SelectItem
-                        key={u.id}
+                        key={uuidv4()}
                         value={String(u.id)}
                         className="hover:bg-primary/20!"
                       >

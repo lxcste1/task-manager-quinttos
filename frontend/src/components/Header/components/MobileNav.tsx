@@ -1,4 +1,5 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Hamburger from "@/components/ui/hamburger";
@@ -9,6 +10,11 @@ const MobileNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
 
   const router = useRouter();
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <div className={className}>
       <Hamburger side="left" closeOnNavigate>
@@ -17,11 +23,13 @@ const MobileNav = ({ className }: React.ComponentPropsWithoutRef<"div">) => {
           {isAuthenticated ? (
             <>
               {navData.map((item) => (
-                <Hamburger.Item key={item.href} {...item}>
+                <Hamburger.Item key={uuidv4()} {...item}>
                   {item.text}
                 </Hamburger.Item>
               ))}
-              <Hamburger.Item onClick={logout}>Cerrar sesión</Hamburger.Item>
+              <Hamburger.Item onClick={handleLogout}>
+                Cerrar sesión
+              </Hamburger.Item>
             </>
           ) : (
             <>

@@ -35,7 +35,7 @@ export default function RegisterPage() {
 
   return (
     <div className="bg-gradient-to-br from-background to-muted/20 pt-16">
-      <div className="max-w-md mx-auto">
+      <div className="mx-auto px-4 py-8 max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Crear Cuenta
@@ -68,6 +68,7 @@ export default function RegisterPage() {
                     onChange={(e) => setField("name", e.target.value)}
                     className="pl-10"
                     required
+                    autoComplete="name"
                   />
                 </div>
               </div>
@@ -84,6 +85,7 @@ export default function RegisterPage() {
                     onChange={(e) => setField("email", e.target.value)}
                     className="pl-10"
                     required
+                    autoComplete="email"
                   />
                 </div>
               </div>
