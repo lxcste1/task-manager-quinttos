@@ -1,5 +1,6 @@
-import { CheckCircle, Clock, Edit3, Filter, Trash2 } from "lucide-react";
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
+import { CheckCircle, Clock, Edit3, Filter, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { featuresData } from "./data/featuresData";
@@ -22,7 +23,7 @@ const FeaturesSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {featuresData.map((feature, index) => (
             <FeatureCard
-              key={index}
+              key={uuidv4()}
               title={feature.title}
               description={feature.description}
               icon={feature.icon}

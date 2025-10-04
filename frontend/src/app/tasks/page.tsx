@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { cx } from "class-variance-authority";
 import { useTasks } from "@/context/TasksContext";
 import TaskForm from "@/components/Tasks/TaskForm";
@@ -10,6 +11,14 @@ import { TaskStatus } from "@/helpers/getTaskStats";
 import { CheckedState, Task } from "@/types/types";
 import { useTaskForm } from "@/hooks/useTaskForm";
 import { TasksSkeleton } from "@/components/Tasks/TasksSkeleton";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+} from "@/components/ui/select";
 
 type StatusFilter = "all" | TaskStatus;
 
@@ -68,7 +77,7 @@ export default function TasksPage() {
           onCancel={cancelEditing}
         />
 
-        <div className="min-h-[700px]">
+        <div className="min-h-[700px] mb-8">
           <div>
             <h2 className="text-xl font-bold text-foreground mb-4">
               Vista de tareas
@@ -84,17 +93,23 @@ export default function TasksPage() {
               aria-label="Buscar por título"
               name="search"
             />
-            <select
+            <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value as StatusFilter)}
-              className={selectClassNames}
-              aria-label="Filtrar por estado"
+              onValueChange={(val) => setStatus(val as StatusFilter)}
               name="status"
+              aria-label="Filtrar por estado"
             >
-              <option value="all">Todos</option>
-              <option value="pending">Pendientes</option>
-              <option value="completed">Completadas</option>
-            </select>
+              <SelectTrigger className={selectClassNames}>
+                <SelectValue placeholder="Filtrar por estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pending">Pendientes</SelectItem>
+                  <SelectItem value="completed">Completadas</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           {loading ? (
@@ -103,7 +118,7 @@ export default function TasksPage() {
             <div className="space-y-3">
               {filteredTasks.map((task) => (
                 <TaskItem
-                  key={task.id}
+                  key={uuidv4()}
                   task={task}
                   onToggle={handleToggle}
                   onEdit={(t: Task) => startEditing(t)}

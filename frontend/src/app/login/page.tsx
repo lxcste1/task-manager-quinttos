@@ -49,7 +49,7 @@ export default function LoginPage() {
 
   return (
     <div className="bg-gradient-to-br from-background to-muted/20 pt-16">
-      <div className="max-w-md mx-auto">
+      <div className="mx-auto px-4 py-8 max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Iniciar Sesión
@@ -86,6 +86,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
+                    autoComplete="email"
                   />
                 </div>
               </div>

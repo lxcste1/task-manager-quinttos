@@ -1,5 +1,6 @@
 "use client";
 
+import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 import { navData } from "./data/navigationData";
 import NavigationItem from "./components/NavigationItem";
@@ -31,7 +32,7 @@ export default function Header() {
             {isAuthenticated && (
               <nav className="hidden md:flex items-center gap-6">
                 {navData.map((item) => (
-                  <NavigationItem key={item.href} {...item} />
+                  <NavigationItem key={uuidv4()} {...item} />
                 ))}
               </nav>
             )}

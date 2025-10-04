@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 
 export type UserLite = {
@@ -14,6 +15,7 @@ type UseUsersState =
   | { loading: false; error: string | null; users: UserLite[] };
 
 export function useUsers(initialFetch: boolean = true) {
+  const { hydrated, isAuthenticated } = useAuth();
   const [state, setState] = useState<UseUsersState>({
     loading: initialFetch,
     error: null,
@@ -49,11 +51,20 @@ export function useUsers(initialFetch: boolean = true) {
   useEffect(() => {
     mountedRef.current = true;
     if (initialFetch) fetchUsers();
+    if (!initialFetch)
+      return () => {
+        mountedRef.current = false;
+      };
+    if (!hydrated || !isAuthenticated) {
+      setState((s) => ({ ...s, loading: false }));
+    } else {
+      fetchUsers();
+    }
     return () => {
       mountedRef.current = false;
       if (abortRef.current) abortRef.current.abort();
     };
-  }, [initialFetch, fetchUsers]);
+  }, [initialFetch, hydrated, isAuthenticated, fetchUsers]);
 
   return {
     users: state.users,

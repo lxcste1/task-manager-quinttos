@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React, {
   createContext,
   useCallback,
   useContext,
@@ -46,7 +46,9 @@ type TasksContextValue = {
 
 const TasksContext = createContext<TasksContextValue | null>(null);
 
-export function TasksProvider({ children }: { children: ReactNode }) {
+export function TasksProvider({
+  children,
+}: React.PropsWithChildren<{ children: ReactNode }>) {
   const { isAuthenticated, user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
