@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Controllers/TaskController.php
 namespace App\Http\Controllers;
 
 use App\Models\Task;
@@ -36,8 +35,7 @@ class TaskController extends Controller
 
         $tasks = Task::query()
             ->authVisible($userId)
-            ->orderByRaw("FIELD(status, 'todo','in_progress','done') asc")
-            ->orderBy('due_date')
+            ->orderByRaw("FIELD(status, 'pending','completed') asc")
             ->paginate(15);
 
         return response()->json($tasks);
@@ -50,8 +48,7 @@ class TaskController extends Controller
         $data = $request->validate([
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'status'      => ['nullable', Rule::in(['todo','in_progress','done'])],
-            'due_date'    => ['nullable', 'date'],
+            'status'      => ['nullable', Rule::in(['pending','completed'])],
             'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
@@ -60,8 +57,7 @@ class TaskController extends Controller
         $task = Task::create([
             'title'       => $data['title'],
             'description' => $data['description'] ?? null,
-            'status'      => $data['status'] ?? 'todo',
-            'due_date'    => $data['due_date'] ?? null,
+            'status'      => $data['status'] ?? 'pending',
             'created_by'  => $user->id,
             'assigned_to' => $assignedTo,
         ]);
@@ -82,8 +78,7 @@ class TaskController extends Controller
         $data = $request->validate([
             'title'       => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
-            'status'      => ['sometimes', Rule::in(['todo','in_progress','done'])],
-            'due_date'    => ['sometimes', 'nullable', 'date'],
+            'status'      => ['sometimes', Rule::in(['pending','completed'])],
             'assigned_to' => ['sometimes', 'integer', 'exists:users,id'],
         ]);
 

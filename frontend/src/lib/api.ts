@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const resolvedBaseURL = process.env.NEXT_PUBLIC_API_URL?.trim() || "/api";
+const base = process.env.NEXT_PUBLIC_API_URL?.trim();
+const resolvedBaseURL = base ? `${base.replace(/\/$/, "")}/api` : "/api";
 
 export const api = axios.create({
   baseURL: resolvedBaseURL,

@@ -5,41 +5,26 @@ import { cx } from "class-variance-authority";
 import { useTasks } from "@/context/TasksContext";
 import TaskForm from "@/components/Tasks/TaskForm";
 import TaskItem from "@/components/Tasks/TaskItem";
-import SkeletonItem from "@/components/Tasks/SkeletonItem";
 import { Input } from "@/components/ui/input";
 import { TaskStatus } from "@/helpers/getTaskStats";
 import { CheckedState, Task } from "@/types/types";
+import { useTaskForm } from "@/hooks/useTaskForm";
+import { TasksSkeleton } from "@/components/Tasks/TasksSkeleton";
 
 type StatusFilter = "all" | TaskStatus;
 
 export default function TasksPage() {
-  const { tasks, loading, addTask, updateTask, removeTask, toggleDone } =
-    useTasks();
+  const { tasks, loading, removeTask, toggleDone } = useTasks();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const { bind, editingTask, startEditing, cancelEditing, submit } =
+    useTaskForm();
+
   const [query, setQuery] = useState<string>("");
   const [status, setStatus] = useState<StatusFilter>("all");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanTitle = title.trim();
-    const cleanDesc = description.trim();
-    if (!cleanTitle) return;
-
-    if (editingTask) {
-      await updateTask(editingTask.id, {
-        title: cleanTitle,
-        description: cleanDesc || undefined,
-      });
-      setEditingTask(null);
-    } else {
-      await addTask({ title: cleanTitle, description: cleanDesc || undefined });
-    }
-
-    setTitle("");
-    setDescription("");
+    await submit();
   };
 
   const handleToggle = async (id: number, checked: CheckedState) => {
@@ -50,25 +35,6 @@ export default function TasksPage() {
   const handleDelete = async (id: number) => {
     await removeTask(id);
   };
-
-  const startEditing = (task: Task) => {
-    setEditingTask(task);
-    setTitle(task.title);
-    setDescription(task.description ?? "");
-  };
-
-  const cancelEditing = () => {
-    setEditingTask(null);
-    setTitle("");
-    setDescription("");
-  };
-  const TasksSkeleton = () => (
-    <div className="space-y-3" aria-hidden>
-      {[0, 1, 2].map((i) => (
-        <SkeletonItem key={i} />
-      ))}
-    </div>
-  );
 
   const filteredTasks = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,14 +57,17 @@ export default function TasksPage() {
         </div>
 
         <TaskForm
-          title={title}
-          description={description}
-          onTitleChange={setTitle}
-          onDescriptionChange={setDescription}
+          title={bind.title}
+          description={bind.description}
+          assignedTo={bind.assignedTo}
+          onTitleChange={bind.onTitleChange}
+          onDescriptionChange={bind.onDescriptionChange}
+          onAssignedToChange={bind.onAssignedToChange}
           onSubmit={handleSubmit}
           isEditing={!!editingTask}
           onCancel={cancelEditing}
         />
+
         <div className="min-h-[700px]">
           <div>
             <h2 className="text-xl font-bold text-foreground mb-4">
@@ -137,7 +106,7 @@ export default function TasksPage() {
                   key={task.id}
                   task={task}
                   onToggle={handleToggle}
-                  onEdit={startEditing}
+                  onEdit={(t: Task) => startEditing(t)}
                   onDelete={handleDelete}
                 />
               ))}
