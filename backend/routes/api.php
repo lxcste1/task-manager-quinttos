@@ -33,11 +33,24 @@ Route::middleware('auth:sanctum')->group(function () {
         return User::query()->select('id','name','email')->orderBy('name')->get();
     });
 
-    Route::get('/stats', function (Request $request) {
+Route::get('/stats', function (Request $request) {
         $uid = $request->user()->id;
-        return [
-            'assigned_to_me' => Task::where('assigned_to', $uid)->count(),
-            'created_by_me'  => Task::where('created_by',  $uid)->count(),
-        ];
+
+        $visible = Task::query()->authVisible($uid);
+
+        $total     = (clone $visible)->count();
+        $completed = (clone $visible)->where('status', 'completed')->count();
+        $pending   = (clone $visible)->where('status', 'pending')->count();
+
+        $assignedToMe = Task::where('assigned_to', $uid)->count();
+        $createdByMe  = Task::where('created_by',  $uid)->count();
+
+        return response()->json([
+            'total'          => $total,
+            'pending'        => $pending,
+            'completed'      => $completed,
+            'assigned_to_me' => $assignedToMe,
+            'created_by_me'  => $createdByMe,
+        ]);
     });
 });
