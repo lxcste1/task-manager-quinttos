@@ -1,14 +1,13 @@
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 
-export type PrimitiveClass = string;
 export type ConditionalClasses = Readonly<Record<string, boolean>>;
-export type Falsy = false | null | undefined | 0 | "";
+export type Falsy = false | null | undefined | 0;
 
 export type ClassInput =
-  | PrimitiveClass
+  | string
   | ConditionalClasses
-  | ReadonlyArray<PrimitiveClass | ConditionalClasses | Falsy>
+  | ReadonlyArray<string | ConditionalClasses | Falsy>
   | Falsy;
 
 export type SlotsToClasses<S extends string> = Partial<Record<S, ClassInput>>;
@@ -23,7 +22,7 @@ export function cn(...inputs: ClassInput[]): string {
  * - `overrides`: clases que llegan por props (SlotsToClasses)
  */
 export function makeSlotResolver<S extends string>(
-  defaults: Partial<Record<S, PrimitiveClass>>,
+  defaults: Partial<Record<S, string>>,
   overrides?: SlotsToClasses<S>
 ) {
   return (slot: S, extra?: ClassInput): string => {

@@ -30,6 +30,8 @@ export type Stats = {
   total: number;
   completed: number;
   pending: number;
+  assigned_to_me?: number;
+  created_by_me?: number;
 };
 
 export type CheckedState = boolean | "indeterminate";
