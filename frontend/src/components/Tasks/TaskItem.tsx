@@ -1,19 +1,30 @@
 import { CheckedState, Task } from "@/types/types";
 import { Card, CardContent } from "../ui/card";
 import { Checkbox } from "../ui/checkbox";
-import { Edit3, Trash2 } from "lucide-react";
+import { Edit3, Trash2, UserIcon, UserPlus } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { useUsers } from "@/hooks/useUsers";
+import { useMemo } from "react";
+import { Button } from "../ui/button";
 
 type TaskItemProps = {
   task: Task;
   onToggle: (id: number, checked: CheckedState) => void | Promise<void>;
   onEdit: (task: Task) => void;
   onDelete: (id: number) => void | Promise<void>;
-  loading?: boolean;
 };
 
 const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
   const isCompleted = task.status === "completed";
+
+  const { users } = useUsers();
+  const usersById = useMemo(
+    () => new Map(users.map((u) => [u.id, u])),
+    [users]
+  );
+  const assignee = usersById.get(task.assignedTo);
+  const creator = usersById.get(task.createdBy);
+
   return (
     <Card className="border border-border">
       <CardContent className="p-4">
@@ -24,7 +35,7 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
             className="mt-1"
           />
 
-          <div className="flex-1 min-w-0">
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <h3
@@ -63,23 +74,75 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
                 </Badge>
               </div>
             </div>
+            <div className="flex gap-2">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-full bg-green-200 p-2">
+                  <UserPlus className="h-3 w-3 text-green-700" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Asignación
+                  </p>
+                  {assignee ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {assignee.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {assignee.email}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {task.assignedTo}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-full bg-green-200 p-2">
+                  <UserIcon className="h-3 w-3 text-green-700" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Creada por
+                  </p>
+                  {creator ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {creator.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {creator.email}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {task.createdBy}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
 
-            <div className="flex items-center gap-4 mt-3">
-              <button
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
                 onClick={() => onEdit(task)}
-                className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
+                className="text-primary hover:text-primary/80 px-2 py-1 hover:bg-green-100! text-sm font-medium flex items-center gap-1"
               >
                 <Edit3 className="w-3 h-3" />
                 Editar
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => onDelete(task.id)}
-                className="text-destructive hover:text-destructive/80 text-sm font-medium flex items-center gap-1"
+                className="text-destructive hover:text-destructive/80 hover:bg-red-50! text-sm font-medium flex items-center gap-1"
               >
                 <Trash2 className="w-3 h-3" />
                 Eliminar
-              </button>
+              </Button>
             </div>
           </div>
         </div>

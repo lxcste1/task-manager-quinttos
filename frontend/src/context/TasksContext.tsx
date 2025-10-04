@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -23,6 +24,7 @@ type UpdatePayload = {
   title?: string;
   description?: string;
   status?: "pending" | "completed";
+  assigned_to?: number;
 };
 
 type TasksContextValue = {
@@ -31,7 +33,12 @@ type TasksContextValue = {
   loading: boolean;
   error: string | null;
   reload: () => Promise<void>;
-  addTask: (data: { title: string; description?: string }) => Promise<void>;
+  addTask: (data: {
+    title: string;
+    description?: string;
+    status?: "pending" | "completed";
+    assignedTo?: number | "";
+  }) => Promise<void>;
   updateTask: (id: number, updates: UpdatePayload) => Promise<void>;
   toggleDone: (id: number, done: boolean) => Promise<void>;
   removeTask: (id: number) => Promise<void>;
@@ -40,7 +47,7 @@ type TasksContextValue = {
 const TasksContext = createContext<TasksContextValue | null>(null);
 
 export function TasksProvider({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,7 +59,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const [t, s] = await Promise.all([getTasks(), getStats()]);
-      setTasks(t as Task[]);
+      setTasks(t);
       setStats(s as Stats);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error loading data");
@@ -66,7 +73,12 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   }, [reload]);
 
   const addTask = useCallback(
-    async (data: { title: string; description?: string }) => {
+    async (data: {
+      title: string;
+      description?: string;
+      status?: "pending" | "completed";
+      assignedTo?: number | "";
+    }) => {
       const title = data.title?.trim();
       if (!title) return;
       const tempId = Math.random();
@@ -74,18 +86,28 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         id: tempId,
         title,
         description: data.description,
-        status: "pending",
+        status: data.status ?? "pending",
+        createdBy: user?.id ?? 0,
+        assignedTo:
+          typeof data.assignedTo === "number" ? data.assignedTo : user?.id ?? 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       setTasks((prev) => [optimistic, ...prev]);
       try {
-        await createTask({ title, description: data.description });
+        await createTask({
+          title,
+          description: data.description,
+          status: data.status ?? "pending",
+          assignedTo: data.assignedTo,
+        });
         await reload();
       } catch (e) {
         setTasks((prev) => prev.filter((t) => t.id !== tempId));
         throw e;
       }
     },
-    [reload]
+    [reload, user?.id]
   );
 
   const updateTask = useCallback(
@@ -141,17 +163,30 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   return (
     <TasksContext.Provider
-      value={{
-        tasks,
-        stats,
-        loading,
-        error,
-        reload,
-        addTask,
-        updateTask,
-        toggleDone,
-        removeTask,
-      }}
+      value={useMemo(
+        () => ({
+          tasks,
+          stats,
+          loading,
+          error,
+          reload,
+          addTask,
+          updateTask,
+          toggleDone,
+          removeTask,
+        }),
+        [
+          tasks,
+          stats,
+          loading,
+          error,
+          reload,
+          addTask,
+          updateTask,
+          toggleDone,
+          removeTask,
+        ]
+      )}
     >
       {children}
     </TasksContext.Provider>
